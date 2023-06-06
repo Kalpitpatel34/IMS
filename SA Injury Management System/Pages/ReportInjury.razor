@@ -1,0 +1,616 @@
+﻿@page "/ReportInjury"
+
+@using DataAccessLibrary
+@using DataAccessLibrary.Models
+@using SA_Injury_Management_System.Models
+
+@inject IInjuryData _db
+@inject NavigationManager uriHelper;
+
+<h3>Report Injury Page</h3>
+<EditForm Model="@newInjury" OnValidSubmit="@InsertData">
+    <!--Essential format for submission form to work-->
+    <ObjectGraphDataAnnotationsValidator /> <!--To validate data. Check ComplexModelCollage.cs file for explanation-->
+
+    @if (InputValues == null)
+    {
+        <h5>Page loading...</h5>
+    }
+    else
+    {
+        <div class="form-group">
+            <div class="mt-3">
+                <h4>Unique Identifiers</h4>
+            </div>
+
+            <!--Labels-->
+            <div class="row">
+                <div class="col-3">
+                    <label for="Name">Initials:</label>
+                </div>
+                <div class="col-3">
+                    <label for="Sex">Sex:</label>
+                </div>
+            </div>
+
+            <!--Input Fields-->
+            <div class="row">
+                <div class="col-3">
+                    <InputText class="form-control" placeholder="Initials..." id="Name" @bind-Value="newInjury.UidModel.Name" />
+                </div>
+                <div class="col-3">
+                    <InputSelect class="form-control" id="Sex" @bind-Value="@newInjury.UidModel.Sex" @onkeyup="@(() => { HideUnhideField("Sex"); })" @onclick="@(() => { HideUnhideField("Sex"); })">
+                        <option value="">Select Sex. . .</option>
+                        @foreach (var ivid in InputValues)
+                            {
+                                if (ivid.SexInput != null)
+                                {
+                                <option value="@ivid.SexInput">@ivid.SexInput</option>
+                                }
+                            }
+                    </InputSelect>
+
+                    <div class="mt-2">
+                        <InputText class="form-control" id="other-sex" @bind-Value="@OtherOptionSex" hidden="@isHiddenSex" placeholder="Other sex..." />
+                    </div>
+                </div>
+
+            </div>
+
+            <!--Labels-->
+            <div class="row mt-3">
+                <div class="col-3">
+                    <label for="DOB">Date of Birth</label>
+                </div>
+                <div class="col-3">
+                    <label for="Date_of_Injury">Date of Injury</label>
+                </div>
+            </div>
+
+            <!--Input Fields-->
+            <div class="row">
+                <div class="col-3">
+                    <InputDate class="form-control" id="DOB" @bind-Value="@newInjury.UidModel.DOB" />
+                </div>
+                <div class="col-3">
+                    <InputDate class="form-control" id="Date_of_Injury" @bind-Value="@newInjury.UidModel.Date_of_Injury" />
+                </div>
+            </div>
+
+            <!--Labels-->
+            <div class="mt-3">
+                <h4>Nature Of Injury</h4>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-3">
+                    <label for="NOA">Nature Of Activity:</label>
+                </div>
+                <div class="col-3">
+                    <label for="NOI">Nature Of Injury:</label>
+                </div>
+            </div>
+
+            <!--Input Fields-->
+            <div class="row">
+                <div class="col-3">
+                    <InputSelect class="form-control" id="NOA" @bind-Value="@newInjury.NOIModel.NatureOfActivity" @onkeyup="@(() => { HideUnhideField("NatureOfActivity"); })" @onclick="@(() => { HideUnhideField("NatureOfActivity"); })">
+                        <option value="">Select Nature of Activity...</option>
+                        @foreach (var ivid in InputValues)
+                            {
+                                if (ivid.NatureOfActivityInput != null)
+                                {
+                                <option value="@ivid.NatureOfActivityInput">@ivid.NatureOfActivityInput</option>
+                                }
+                            }
+                    </InputSelect>
+
+                    <div class="mt-2">
+                        <InputText class="form-control" id="other-noa" @bind-Value="@NOAOtherValue" hidden="@isHiddenNOA" placeholder="Other Activity..." />
+                    </div>
+                </div>
+
+                <div class="col-3">
+                    <InputSelect class="form-control" id="NOI" @bind-Value="@newInjury.NOIModel.NatureOfInjury" @onkeyup="@(() => { HideUnhideField("NatureOfInjury"); })" @onclick="@(() => { HideUnhideField("NatureOfInjury"); })">
+                        <option value="">Select Nature of Injury...</option>
+                        @foreach (var ivid in InputValues)
+                            {
+                                if (ivid.NatureOfInjuryInput != null)
+                                {
+                                <option value="@ivid.NatureOfInjuryInput">@ivid.NatureOfInjuryInput</option>
+                                }
+                            }
+                    </InputSelect>
+
+                    <div class="mt-2">
+                        <InputText class="form-control" id="other-noi" @bind-Value="@NOIOtherValue" hidden="@isHiddenNOI" placeholder="Other Nature of Injury..." />
+                    </div>
+                </div>
+            </div>
+
+            <!--Labels-->
+            <div class="row mt-3">
+                <div class="col-3">
+                    <label for="MOI">Mechanism Of Injury:</label>
+                </div>
+                <div class="col-3">
+                    <label for="AOI">Area of Injury:</label>
+                </div>
+            </div>
+
+            <!--Input Fields-->
+            <div class="row">
+                <div class="col-3">
+                    <InputSelect class="form-control" id="MOI" @bind-Value="@newInjury.NOIModel.MechanismOfInjury" @onkeyup="@(() => { HideUnhideField("MechanismOfInjury"); })" @onclick="@(() => { HideUnhideField("MechanismOfInjury"); })">
+                        <option value="">Select Mechanism of Injury...</option>
+                        @foreach (var ivid in InputValues)
+                            {
+                                if (ivid.MechanismOfInjuryInput != null)
+                                {
+                                <option value="@ivid.MechanismOfInjuryInput">@ivid.MechanismOfInjuryInput</option>
+                                }
+                            }
+                    </InputSelect>
+
+                    <div class="mt-2">
+                        <InputText class="form-control" id="other-moi" @bind-Value="@MOIOtherValue" hidden="@isHiddenMOI" placeholder="Other Mechanism of Injury..." />
+                    </div>
+                </div>
+
+                <div class="col-3">
+                    <InputSelect class="form-control" id="AOI" @bind-Value="@newInjury.NOIModel.AreaOfInjury">
+                        <option value="">Select Area of Injury...</option>
+                        @foreach (var ivid in InputValues)
+                            {
+                                if (ivid.AreaOfInjuryInput != null)
+                                {
+                                <option value="@ivid.AreaOfInjuryInput">@ivid.AreaOfInjuryInput</option>
+                                }
+                            }
+                    </InputSelect>
+                </div>
+            </div>
+        </div>
+
+        <!--Labels-->
+        <div class="mt-3">
+            <h4>Location Associated With Injury:</h4>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-3">
+                <label for="PWIO">Place Where Injury Occured:</label>
+            </div>
+            <div class="col-3">
+                <label for="SRA">Sport or Recreational Activity:</label>
+            </div>
+        </div>
+
+        <!--Input Fields-->
+        <div class="row">
+            <div class="col-3">
+                <InputSelect class="form-control" id="PWIO" @bind-Value="@newInjury.LAWIModel.PlaceWhereInjuryOccured" @onkeyup="@(() => { HideUnhideField("PlaceWhereInjuryOccured"); })" @onclick="@(() => { HideUnhideField("PlaceWhereInjuryOccured"); })">
+                    <option value="">Select Place Where Injury Occured...</option>
+                    @foreach (var ivid in InputValues)
+                        {
+                            if (ivid.PlaceWhereInjuryOccuredInput != null)
+                            {
+                            <option value="@ivid.PlaceWhereInjuryOccuredInput">@ivid.PlaceWhereInjuryOccuredInput</option>
+                            }
+                        }
+                </InputSelect>
+
+                <div class="mt-2">
+                    <InputText class="form-control" id="other-moi" @bind-Value="@PWIOOtherValue" hidden="@isHiddenPWIO" placeholder="Other Place Where Injury Occured..." />
+                </div>
+            </div>
+
+            <div class="col-3">
+                <InputSelect class="form-control" id="SPA" @bind-Value="@newInjury.LAWIModel.SportOrRecreationalActivity" @onkeyup="@(() => { HideUnhideField("SportOrRecreationalActivity"); })" @onclick="@(() => { HideUnhideField("SportOrRecreationalActivity"); })">
+                    <option value="">Select Sport or Recreational Activity. . .</option>
+                    @foreach (var ivid in InputValues)
+                        {
+                            if (ivid.SportOrRecreationalActivityInput != null)
+                            {
+                            <option value="@ivid.SportOrRecreationalActivityInput">@ivid.SportOrRecreationalActivityInput</option>
+                            }
+                        }
+                </InputSelect>
+
+                <div class="mt-2">
+                    <InputText class="form-control" id="other-moi2" @bind-Value="@SPAOtherValue" hidden="@isHiddenSPA" placeholder="Other Sport Or Recreational Activity..." />
+                </div>
+            </div>
+        </div>
+
+        <!--Labels-->
+        <div class="mt-3">
+            <input class="form-check-input" type="checkbox" id="aiicheckBox" @onchange="(() => { IsDisabledAdditionalInformation = !IsDisabledAdditionalInformation; })" />
+            <div>
+                <h4>Additional Injury Information:</h4>
+            </div>
+        </div>
+
+        <!--Labels-->
+        <div class="row mt-3">
+            <div class="col-3">
+                <label for="TOI">Type of Injury:</label>
+            </div>
+            <div class="col-3">
+                <label for="TIOI">Time of Injury:</label>
+            </div>
+        </div>
+
+        <!--Input Fields-->
+        <div class="row">
+            <div class="col-3">
+                <InputSelect class="form-control" id="TOI" disabled="@IsDisabledAdditionalInformation" @bind-Value="@newInjury.AIIModel.TypeOfInjury" @onkeyup="@(() => {HideUnhideField("TypeOfInjury");})" @onclick="@(() => {HideUnhideField("TypeOfInjury");})">
+                    <option value="">Select Type Of Injury...</option>
+                    @foreach (var ivid in InputValues)
+                        {
+                            if (ivid.TypeOfInjuryInput != null)
+                            {
+                            <option value="@ivid.TypeOfInjuryInput">@ivid.TypeOfInjuryInput</option>
+                            }
+                        }
+                </InputSelect>
+
+                <div class="mt-2">
+                    <InputText class="form-control" id="other-toi" disabled="@IsDisabledAdditionalInformation" @bind-Value="@TOIOtherValue" hidden="@isHiddenTOI" placeholder="Other Type of Injury..." />
+                </div>
+            </div>
+
+            <div class="col-3 md-form">
+                <input id="TIOI" @bind-value="@timeRecorded" disabled="@IsDisabledAdditionalInformation" type="time" class="form-control" />
+            </div>
+        </div>
+
+        <!--Labels-->
+        <div class="row mt-3">
+            <div class="col-3">
+                <label for="GS">Ground Surface:</label>
+            </div>
+            <div class="col-3">
+                <label for="SOI">Severity Of Injury:</label>
+            </div>
+        </div>
+
+        <!--Input Fields-->
+        <div class="row">
+            <div class="col-3">
+                <InputSelect class="form-control" id="GS" @bind-Value="@newInjury.AIIModel.GroundSurface" disabled="@IsDisabledAdditionalInformation" @onkeyup="@(() => {HideUnhideField("GroundSurface");})" @onclick="@(() => {HideUnhideField("GroundSurface");})">
+                    <option value="">Select Ground Surface...</option>
+                    @foreach (var ivid in InputValues)
+                        {
+                            if (ivid.GroundSurfaceInput != null)
+                            {
+                            <option value="@ivid.GroundSurfaceInput">@ivid.GroundSurfaceInput</option>
+                            }
+                        }
+                </InputSelect>
+
+                <div class="mt-2">
+                    <InputText class="form-control" id="other-gs" @bind-Value="@GSOtherValue" disabled="@IsDisabledAdditionalInformation" hidden="@isHiddenGS" placeholder="Other Ground Surface..." />
+                </div>
+            </div>
+
+            <div class="col-3">
+                <InputSelect class="form-control" id="SOI" disabled="@IsDisabledAdditionalInformation" @bind-Value="@newInjury.AIIModel.SeverityOfInjury">
+                    <option value="">Select Severity Of Injury...</option>
+                    @foreach (var ivid in InputValues)
+                        {
+                            if (ivid.SeverityOfInjuryInput != null)
+                            {
+                            <option value="@ivid.SeverityOfInjuryInput">@ivid.SeverityOfInjuryInput</option>
+                            }
+                        }
+                </InputSelect>
+            </div>
+        </div>
+
+        <!--Labels-->
+        <div class="row mt-3">
+            <div class="col-3">
+                <label for="DEB">Data Entered By:</label>
+            </div>
+        </div>
+
+        <!--Input Fields-->
+        <div class="row">
+            <div class="col-3">
+                <InputSelect class="form-control" id="DEB" @bind-Value="@newInjury.AIIModel.DataEnteredBy" disabled="@IsDisabledAdditionalInformation" @onkeyup="@(() => {HideUnhideField("DataEnteredBy");})" @onclick="@(() => {HideUnhideField("DataEnteredBy");})">
+                    <option value="">Select Data Entered By. . .</option>
+                    @foreach (var ivid in InputValues)
+                        {
+                            if (ivid.DataEnteredByInput != null)
+                            {
+                            <option value="@ivid.DataEnteredByInput">@ivid.DataEnteredByInput</option>
+                            }
+                        }
+                </InputSelect>
+
+                <div class="mt-2">
+                    <InputText class="form-control" id="other-deb" @bind-Value="@DESOtherValue" disabled="@IsDisabledAdditionalInformation" hidden="@isHiddenDES" placeholder="Other Data Entered By..." />
+                </div>
+            </div>
+        </div>
+          <ValidationSummary />
+        <div class="mt-3">
+            <button type="submit" class="btn btn-outline-primary">Submit Form</button>
+        </div>
+    }
+
+</EditForm>
+
+@code {
+    private SA_Injury_Management_System.Models.ComplexModelCollage newInjury = new SA_Injury_Management_System.Models.ComplexModelCollage();
+
+    private EditContext editContext;
+
+    private String NOAOtherValue = "";
+    private String NOIOtherValue = "";
+    private String MOIOtherValue = "";
+    private String PWIOOtherValue = "";
+    private String SPAOtherValue = "";
+    private String TOIOtherValue = "";
+    private String GSOtherValue = "";
+    private String DESOtherValue = "";
+    private String OtherOptionSex = "";
+
+    protected bool isHiddenSex { get; set; } = true;
+    protected bool isHiddenNOA { get; set; } = true;
+    protected bool isHiddenNOI { get; set; } = true;
+    protected bool isHiddenMOI { get; set; } = true;
+    protected bool isHiddenPWIO { get; set; } = true;
+    protected bool isHiddenSPA { get; set; } = true;
+    protected bool isHiddenTOI { get; set; } = true;
+    protected bool isHiddenGS { get; set; } = true;
+    protected bool isHiddenDES { get; set; } = true;
+
+    protected bool IsDisabledAdditionalInformation { get; set; } = true;
+
+    protected string genUUID = System.Guid.NewGuid().ToString();
+    protected DateTime timeRecorded = new DateTime();
+
+    List<InputValues_Model> InputValues;
+
+    protected override async Task OnInitializedAsync()
+    {
+        newInjury.UidModel.Date_of_Injury = DateTime.Now;
+        newInjury.UidModel.DOB = new DateTime(DateTime.Now.Year - 18, 1, 1);
+
+        InputValues = await _db.GetInputValues();
+    }
+
+    //push data to db
+    private async Task InsertData()
+    {
+        await InsertUniqueIdentifiers();
+        await InsertNOI();
+        await InsertLocationAssociatedWithInjury();
+
+        if (IsDisabledAdditionalInformation == false)
+        {
+            await InsertAdditionalInjuryInformation();
+        }
+
+
+        newInjury = new SA_Injury_Management_System.Models.ComplexModelCollage();
+        uriHelper.NavigateTo(uriHelper.Uri, forceLoad: true);
+    }
+
+    private async Task InsertAdditionalInjuryInformation()
+    {
+        if (newInjury.AIIModel.TypeOfInjury == "Other" && !isHiddenTOI)
+        {
+            newInjury.AIIModel.TypeOfInjury = TOIOtherValue;
+        }
+        if (newInjury.AIIModel.GroundSurface == "Other" && !isHiddenGS)
+        {
+            newInjury.AIIModel.GroundSurface = GSOtherValue;
+        }
+        if (newInjury.AIIModel.DataEnteredBy == "Other" && !isHiddenDES)
+        {
+            newInjury.AIIModel.DataEnteredBy = DESOtherValue;
+        }
+
+        AdditionalInjuryInformation_Model aii = new AdditionalInjuryInformation_Model
+        {
+            TypeOfInjury = newInjury.AIIModel.TypeOfInjury,
+            TimeOfInjury = String.Format("{0:t}", timeRecorded),
+            GroundSurface = newInjury.AIIModel.GroundSurface,
+            SeverityOfInjury = newInjury.AIIModel.SeverityOfInjury,
+            DataEnteredBy = newInjury.AIIModel.DataEnteredBy
+        };
+
+        await _db.InsertAdditionalInjuryInformation(aii, genUUID);
+    }
+
+    //push data to the database table LocationAssociatedWithInjury
+    private async Task InsertLocationAssociatedWithInjury()
+    {
+        if (newInjury.LAWIModel.PlaceWhereInjuryOccured == "Other" && !isHiddenPWIO)
+        {
+            newInjury.LAWIModel.PlaceWhereInjuryOccured = PWIOOtherValue;
+        }
+        if (newInjury.LAWIModel.SportOrRecreationalActivity == "Other" && !isHiddenSPA)
+        {
+            newInjury.LAWIModel.SportOrRecreationalActivity = SPAOtherValue;
+        }
+
+        LocationAssociatedWithInjury_Model lawi = new LocationAssociatedWithInjury_Model
+        {
+            PlaceWhereInjuryOccured = newInjury.LAWIModel.PlaceWhereInjuryOccured,
+            SportOrRecreationalActivity = newInjury.LAWIModel.SportOrRecreationalActivity
+        };
+
+        await _db.InsertLocationAssociatedWithInjury(lawi, genUUID);
+    }
+
+    //push data to the database table NatureOfInjury
+    private async Task InsertNOI()
+    {
+        if (newInjury.NOIModel.NatureOfInjury == "Other" && !isHiddenNOI)
+        {
+            newInjury.NOIModel.NatureOfInjury = NOIOtherValue;
+        }
+        if (newInjury.NOIModel.MechanismOfInjury == "Other" && !isHiddenMOI)
+        {
+            newInjury.NOIModel.MechanismOfInjury = MOIOtherValue;
+        }
+        if (newInjury.NOIModel.NatureOfActivity == "Other" && !isHiddenNOA)
+        {
+            newInjury.NOIModel.NatureOfActivity = NOAOtherValue;
+        }
+
+        NatureOfInjury_Model noim = new NatureOfInjury_Model
+        {
+            NatureOfActivity = newInjury.NOIModel.NatureOfActivity,
+            MechanismOfInjury = newInjury.NOIModel.MechanismOfInjury,
+            AreaOfInjury = newInjury.NOIModel.AreaOfInjury,
+            NatureOfInjury = newInjury.NOIModel.NatureOfInjury
+        };
+
+        await _db.InsertNatureOfInjury(noim, genUUID);
+    }
+
+    //Push data to the database table UniqueIdentifiers
+    private async Task InsertUniqueIdentifiers()
+    {
+        if (newInjury.UidModel.Sex == "Other" && !isHiddenSex)
+        {
+            newInjury.UidModel.Sex = OtherOptionSex;
+        }
+
+        UniqueIdentifiers_Model uidm = new UniqueIdentifiers_Model
+        {
+            Name = newInjury.UidModel.Name,
+            DOB = newInjury.UidModel.DOB,
+            Date_of_Injury = newInjury.UidModel.Date_of_Injury,
+            Sex = newInjury.UidModel.Sex,
+            UUID = genUUID
+        };
+
+        await _db.InsertUniqueIdentifiers(uidm);
+    }
+
+    //Hide Unhide "Other" fields
+    /**
+    I know it looks horrible, but i tried to simplify the solution by introducing a dictionary into it
+    however the way that c# uses dictionaries is extremely inconvenient 
+    you cant change values of the dictionary directly, you have to reference a key and overwrite it
+    considering the way that this particular solution is done a wall of checks would be unavoidable
+
+    If someone else happened to be working with this code, feel free to refactor this, i am sure
+    there's a solution but i personally cannot be arsed to figure it out atm. 
+    */
+    private void HideUnhideField(String value)
+    {
+        switch (value)
+        {
+            case "MechanismOfInjury":
+                if (newInjury.NOIModel.MechanismOfInjury != "Other")
+                {
+                    isHiddenMOI = true;
+                }
+                else
+                {
+                    isHiddenMOI = false;
+                }
+                break;
+            case "NatureOfInjury":
+                if (newInjury.NOIModel.NatureOfInjury != "Other")
+                {
+                    isHiddenNOI = true;
+                }
+                else
+                {
+                    isHiddenNOI = false;
+                }
+                break;
+            case "NatureOfActivity":
+                if (newInjury.NOIModel.NatureOfActivity != "Other")
+                {
+                    isHiddenNOA = true;
+                }
+                else
+                {
+                    isHiddenNOA = false;
+                }
+                break;
+            case "Sex":
+                if (newInjury.UidModel.Sex != "Other")
+                {
+                    isHiddenSex = true;
+                }
+                else
+                {
+                    isHiddenSex = false;
+                }
+                break;
+            case "PlaceWhereInjuryOccured":
+                if (newInjury.LAWIModel.PlaceWhereInjuryOccured != "Other")
+                {
+                    isHiddenPWIO = true;
+                }
+                else
+                {
+                    isHiddenPWIO = false;
+                }
+                break;
+            case "SportOrRecreationalActivity":
+                if (newInjury.LAWIModel.SportOrRecreationalActivity != "Other")
+                {
+                    isHiddenSPA = true;
+                }
+                else
+                {
+                    isHiddenSPA = false;
+                }
+                break;
+            case "TypeOfInjury":
+                if (newInjury.AIIModel.TypeOfInjury != "Other")
+                {
+                    isHiddenTOI = true;
+                }
+                else
+                {
+                    isHiddenTOI = false;
+                }
+                break;
+            case "GroundSurface":
+                if (newInjury.AIIModel.GroundSurface != "Other")
+                {
+                    isHiddenGS = true;
+                }
+                else
+                {
+                    isHiddenGS = false;
+                }
+                break;
+            case "DataEnteredBy":
+                if (newInjury.AIIModel.DataEnteredBy != "Other")
+                {
+                    isHiddenDES = true;
+                }
+                else
+                {
+                    isHiddenDES = false;
+                }
+                break;
+        }
+    }
+
+}
+
+
+<!--
+Notes:
+    1. Found a way on how to pass a value to the next page. https://stackoverflow.com/questions/51226405/net-core-blazor-app-how-to-pass-data-between-pages
+    2. 
+
+Steps:
+    1. Create a model equivalent to that of an inputValues table
+    2. Use an example of GetNatureOfInjury method in order to create a reliable way of populating input fields
+    3. Implement it.
+-->
